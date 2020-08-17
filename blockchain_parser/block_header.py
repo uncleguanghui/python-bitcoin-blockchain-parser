@@ -12,8 +12,10 @@
 from datetime import datetime
 from bitcoin.core import CBlockHeader
 
-from .utils import decode_uint32, format_hash
-
+try:
+    from .utils import decode_uint32, format_hash
+except (ImportError, ValueError):
+    from blockchain_parser.utils import decode_uint32, format_hash
 
 class BlockHeader(object):
     """Represents a block header"""

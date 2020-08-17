@@ -9,9 +9,14 @@
 # modified, propagated, or distributed except according to the terms contained
 # in the LICENSE file.
 
-from .utils import decode_varint, decode_uint64
-from .script import Script
-from .address import Address
+try:
+    from .utils import decode_varint, decode_uint64
+    from .script import Script
+    from .address import Address
+except (ImportError, ValueError):
+    from blockchain_parser.utils import decode_varint, decode_uint64
+    from blockchain_parser.script import Script
+    from blockchain_parser.address import Address
 
 
 class Output(object):
@@ -25,7 +30,7 @@ class Output(object):
         script_length, varint_size = decode_varint(raw_hex[8:])
         script_start = 8 + varint_size
 
-        self._script_hex = raw_hex[script_start:script_start+script_length]
+        self._script_hex = raw_hex[script_start:script_start + script_length]
         self.size = script_start + script_length
         self._value_hex = raw_hex[:8]
 
@@ -69,8 +74,12 @@ class Output(object):
                 self._addresses.append(address)
             elif self.type == "multisig":
                 n = self.script.operations[-2]
-                for operation in self.script.operations[1:1+n]:
+                for operation in self.script.operations[1:1 + n]:
                     self._addresses.append(Address.from_public_key(operation))
+            else:
+                address = Address.from_bech32(self.script.operations[1])
+                if address:
+                    self._addresses.append(address)
 
         return self._addresses
 

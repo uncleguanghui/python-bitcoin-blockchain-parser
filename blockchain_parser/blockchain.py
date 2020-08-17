@@ -16,10 +16,14 @@ import pickle
 import stat
 import plyvel
 
-from .block import Block
-from .index import DBBlockIndex
-from .utils import format_hash
-
+try:
+    from .block import Block
+    from .index import DBBlockIndex
+    from .utils import format_hash
+except (ImportError, ValueError):
+    from blockchain_parser.block import Block
+    from blockchain_parser.index import DBBlockIndex
+    from blockchain_parser.utils import format_hash
 
 # Constant separating blocks in the .blk files
 BITCOIN_CONSTANT = b"\xf9\xbe\xb4\xd9"
@@ -54,12 +58,12 @@ def get_blocks(blockfile):
         offset = 0
         block_count = 0
         while offset < (length - 4):
-            if raw_data[offset:offset+4] == BITCOIN_CONSTANT:
+            if raw_data[offset:offset + 4] == BITCOIN_CONSTANT:
                 offset += 4
-                size = struct.unpack("<I", raw_data[offset:offset+4])[0]
+                size = struct.unpack("<I", raw_data[offset:offset + 4])[0]
                 offset += 4 + size
                 block_count += 1
-                yield raw_data[offset-size:offset]
+                yield raw_data[offset - size:offset]
             else:
                 offset += 1
         raw_data.close()
@@ -216,6 +220,14 @@ class Blockchain(object):
 
         for blkIdx in blockIndexes[start:end]:
             if blkIdx.file == -1 or blkIdx.data_pos == -1:
-                break
+                continue
             blkFile = os.path.join(self.path, "blk%05d.dat" % blkIdx.file)
             yield Block(get_block(blkFile, blkIdx.data_pos), blkIdx.height)
+
+
+# bc = Blockchain(os.path.expanduser('/Users/zhangguanghui/Library/Application Support/Bitcoin/blocks'))
+# bs_ordered = bc.get_ordered_blocks(
+#     os.path.expanduser('/Users/zhangguanghui/Library/Application Support/Bitcoin/blocks/index'),
+#     cache='/Users/zhangguanghui/Desktop/万向/线上交易数据分析/notebook/7_区块链数据解析/index-cache.pickle'
+# )
+# b = next(bs_ordered)

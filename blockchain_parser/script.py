@@ -98,17 +98,20 @@ class Script(object):
     def is_p2sh(self):
         return self.script.is_p2sh()
 
+    def is_bech32(self):
+        return len(self.operations) == 2 and self.operations[0] == b''
+
     def is_pubkey(self):
         return len(self.operations) == 2 \
-            and self.operations[-1] == OP_CHECKSIG \
-            and is_public_key(self.operations[0])
+               and self.operations[-1] == OP_CHECKSIG \
+               and is_public_key(self.operations[0])
 
     def is_pubkeyhash(self):
         return len(self.hex) == 25 \
-            and self.operations[0] == OP_DUP \
-            and self.operations[1] == OP_HASH160 \
-            and self.operations[-2] == OP_EQUALVERIFY \
-            and self.operations[-1] == OP_CHECKSIG
+               and self.operations[0] == OP_DUP \
+               and self.operations[1] == OP_HASH160 \
+               and self.operations[-2] == OP_EQUALVERIFY \
+               and self.operations[-1] == OP_CHECKSIG
 
     def is_multisig(self):
         if len(self.operations) < 4:
@@ -119,7 +122,7 @@ class Script(object):
             return False
 
         for i in range(m):
-            if not is_public_key(self.operations[1+i]):
+            if not is_public_key(self.operations[1 + i]):
                 return False
 
         n = self.operations[-2]
@@ -131,5 +134,5 @@ class Script(object):
 
     def is_unknown(self):
         return not self.is_pubkeyhash() and not self.is_pubkey() \
-            and not self.is_p2sh() and not self.is_multisig() \
-            and not self.is_return()
+               and not self.is_p2sh() and not self.is_multisig() \
+               and not self.is_return()

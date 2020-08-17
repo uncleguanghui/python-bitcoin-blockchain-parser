@@ -9,9 +9,14 @@
 # modified, propagated, or distributed except according to the terms contained
 # in the LICENSE file.
 
-from .utils import decode_varint, decode_uint32, double_sha256, format_hash
-from .input import Input
-from .output import Output
+try:
+    from .utils import decode_varint, decode_uint32, double_sha256, format_hash
+    from .input import Input
+    from .output import Output
+except (ImportError, ValueError):
+    from blockchain_parser.utils import decode_varint, decode_uint32, double_sha256, format_hash
+    from blockchain_parser.input import Input
+    from blockchain_parser.output import Output
 
 
 def bip69_sort(data):
@@ -132,9 +137,7 @@ class Transaction(object):
             # segwit transactions have two transaction ids/hashes, txid and wtxid
             # txid is a hash of all of the legacy transaction fields only
             if self.is_segwit:
-                txid_data = self.hex[:4] + self.hex[
-                                           6:self._offset_before_tx_witnesses] + self.hex[
-                                                                                 -4:]
+                txid_data = self.hex[:4] + self.hex[6:self._offset_before_tx_witnesses] + self.hex[-4:]
             else:
                 txid_data = self.hex
             self._txid = format_hash(double_sha256(txid_data))

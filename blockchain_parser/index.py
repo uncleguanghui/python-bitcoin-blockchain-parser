@@ -1,6 +1,9 @@
 from struct import unpack
 
-from .utils import format_hash
+try:
+    from .utils import format_hash
+except (ImportError, ValueError):
+    from blockchain_parser.utils import format_hash
 
 BLOCK_HAVE_DATA = 8
 BLOCK_HAVE_UNDO = 16

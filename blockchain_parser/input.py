@@ -9,8 +9,12 @@
 # modified, propagated, or distributed except according to the terms contained
 # in the LICENSE file.
 
-from .utils import decode_varint, decode_uint32, format_hash
-from .script import Script
+try:
+    from .utils import decode_varint, decode_uint32, format_hash
+    from .script import Script
+except (ImportError, ValueError):
+    from blockchain_parser.utils import decode_varint, decode_uint32, format_hash
+    from blockchain_parser.script import Script
 
 
 class Input(object):

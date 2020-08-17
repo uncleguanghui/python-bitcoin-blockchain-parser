@@ -9,9 +9,14 @@
 # modified, propagated, or distributed except according to the terms contained
 # in the LICENSE file.
 
-from .transaction import Transaction
-from .block_header import BlockHeader
-from .utils import format_hash, decode_varint, double_sha256
+try:
+    from .transaction import Transaction
+    from .block_header import BlockHeader
+    from .utils import format_hash, decode_varint, double_sha256
+except (ImportError, ValueError):
+    from blockchain_parser.transaction import Transaction
+    from blockchain_parser.block_header import BlockHeader
+    from blockchain_parser.utils import format_hash, decode_varint, double_sha256
 
 
 def get_block_transactions(raw_hex):

@@ -10,7 +10,13 @@
 # in the LICENSE file.
 
 from bitcoin import base58
-from .utils import btc_ripemd160, double_sha256
+
+try:
+    from .utils import btc_ripemd160, double_sha256
+    from .segwit_add import encode as bech32_encode
+except (ImportError, ValueError):
+    from blockchain_parser.segwit_add import encode as bech32_encode
+    from blockchain_parser.utils import btc_ripemd160, double_sha256
 
 
 class Address(object):
@@ -36,6 +42,13 @@ class Address(object):
         normal address or a P2SH address, the latter is indicated by setting
         type to 'p2sh'"""
         return cls(hash, None, None, type)
+
+    @classmethod
+    def from_bech32(cls, hash, type="bech32"):
+        """Constructs an Address object from a bech32 key"""
+        address = bech32_encode(hrp="bc", witver=0, witprog=bytearray(hash))
+        if address:
+            return cls(hash, None, address, type)
 
     @property
     def hash(self):
